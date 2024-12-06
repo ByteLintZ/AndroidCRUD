@@ -13,6 +13,12 @@
         android:theme="@style/Theme.CRUDUTS"
         tools:targetApi="31">
         <activity
+            android:name=".StructureActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LandingActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity

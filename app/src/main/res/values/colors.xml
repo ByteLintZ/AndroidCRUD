@@ -5,4 +5,12 @@
     <color name="teal_200">#2770F4</color>
     <color name="blue">#00FF0D</color>
     <color name="yellow">#FF0000</color>
+    <color name="primary">#6200EE</color>
+    <color name="secondary">#03DAC5</color>
+    <color name="light_background">#FAFAFA</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="dark_text">#212121</color>
+    <color name="gray">#757575</color>
+    <color name="dark_gray">#383838</color>
+
 </resources>

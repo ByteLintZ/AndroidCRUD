@@ -29,7 +29,7 @@ class LoginActivity : AppCompatActivity() {
 
             if (authManager.loginUser(username, password)) {
                 authManager.setLoggedInUser(username)
-                startActivity(Intent(this, MainActivity::class.java))
+                startActivity(Intent(this, LandingActivity::class.java))
                 finish()
             } else {
                 Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()

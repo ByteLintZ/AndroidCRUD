@@ -2,69 +2,98 @@ package com.example.cruduts.model
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    init {
-        writableDatabase
+    companion object {
+        private const val DATABASE_NAME = "BookStore.db"
+        private const val DATABASE_VERSION = 2
+
+        private const val TABLE_BOOKS = "books"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_TITLE = "title"
+        private const val COLUMN_AUTHOR = "author"
+        private const val COLUMN_GENRE = "genre"
+        private const val COLUMN_TYPE = "type" // New column for Fiction/Non-Fiction
+        private const val COLUMN_PRICE = "price"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL("CREATE TABLE $TABLE_NAME (" +
-                "$COL_1 INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "$COL_2 TEXT, " +
-                "$COL_3 TEXT, " +
-                "$COL_4 INTEGER)")
+        val createTableQuery = """
+            CREATE TABLE $TABLE_BOOKS (
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_TITLE TEXT,
+                $COLUMN_AUTHOR TEXT,
+                $COLUMN_GENRE TEXT,
+                $COLUMN_TYPE TEXT,
+                $COLUMN_PRICE REAL
+            )
+        """
+        db.execSQL(createTableQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-        onCreate(db)
-    }
-
-    fun insertData(name: String, surname: String, marks: String): Boolean {
-        val db = writableDatabase
-        val contentValues = ContentValues().apply {
-            put(COL_2, name)
-            put(COL_3, surname)
-            put(COL_4, marks)
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE $TABLE_BOOKS ADD COLUMN $COLUMN_TYPE TEXT")
         }
-        val result = db.insert(TABLE_NAME, null, contentValues)
-        return result != -1L
     }
 
-    fun getAllData(): Cursor {
+    // Insert a new book
+    fun insertBook(title: String, author: String, genre: String, type: String, price: Double): Long {
         val db = writableDatabase
-        return db.rawQuery("SELECT * FROM $TABLE_NAME", null)
-    }
-
-    fun updateData(id: String, name: String, surname: String, marks: String): Boolean {
-        val db = writableDatabase
-        val contentValues = ContentValues().apply {
-            put(COL_1, id)
-            put(COL_2, name)
-            put(COL_3, surname)
-            put(COL_4, marks)
+        val values = ContentValues().apply {
+            put(COLUMN_TITLE, title)
+            put(COLUMN_AUTHOR, author)
+            put(COLUMN_GENRE, genre)
+            put(COLUMN_TYPE, type)
+            put(COLUMN_PRICE, price)
         }
-        db.update(TABLE_NAME, contentValues, "ID = ?", arrayOf(id))
-        return true
+        return db.insert(TABLE_BOOKS, null, values)
     }
 
-    fun deleteData(id: String): Int {
+    // Update a book
+    fun updateBook(id: Int, title: String, author: String, genre: String, type: String, price: Double): Int {
         val db = writableDatabase
-        return db.delete(TABLE_NAME, "ID = ?", arrayOf(id))
+        val values = ContentValues().apply {
+            put(COLUMN_TITLE, title)
+            put(COLUMN_AUTHOR, author)
+            put(COLUMN_GENRE, genre)
+            put(COLUMN_TYPE, type)
+            put(COLUMN_PRICE, price)
+        }
+        return db.update(TABLE_BOOKS, values, "$COLUMN_ID = ?", arrayOf(id.toString()))
     }
 
-    companion object {
-        const val DATABASE_NAME = "Student.db"
-        const val TABLE_NAME = "student_table"
-        private const val DATABASE_VERSION = 1
-        const val COL_1 = "ID"
-        const val COL_2 = "NAME"
-        const val COL_3 = "SURNAME"
-        const val COL_4 = "MARKS"
+    // Delete a book
+    fun deleteBook(id: Int): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_BOOKS, "$COLUMN_ID = ?", arrayOf(id.toString()))
+    }
+
+    // Retrieve all books
+    fun getAllBooks(): List<Book> {
+        val books = mutableListOf<Book>()
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_BOOKS, null, null, null, null, null, "$COLUMN_TITLE ASC"
+        )
+        with(cursor) {
+            while (moveToNext()) {
+                books.add(
+                    Book(
+                        id = getInt(getColumnIndexOrThrow(COLUMN_ID)),
+                        title = getString(getColumnIndexOrThrow(COLUMN_TITLE)),
+                        author = getString(getColumnIndexOrThrow(COLUMN_AUTHOR)),
+                        genre = getString(getColumnIndexOrThrow(COLUMN_GENRE)),
+                        type = getString(getColumnIndexOrThrow(COLUMN_TYPE)),
+                        price = getDouble(getColumnIndexOrThrow(COLUMN_PRICE))
+                    )
+                )
+            }
+            close()
+        }
+        return books
     }
 }

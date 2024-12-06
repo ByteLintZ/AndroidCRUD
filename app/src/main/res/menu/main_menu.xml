@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_welcome"
+        android:title="Welcome"
+        />
+
+    <item
+        android:id="@+id/action_structure"
+        android:title="Struktur" />
+
+    <item
+        android:id="@+id/action_crud"
+        android:title="Borrow" />
+
+    <item
+        android:id="@+id/action_exit"
+        android:title="Exit" />
+</menu>
